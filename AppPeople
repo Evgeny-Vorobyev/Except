@@ -1,0 +1,120 @@
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Scanner;
+
+class Person {
+    private String lastName;
+    private String firstName;
+    private String middleName;
+    private Date birthDate;
+    private long phoneNumber;
+    private char gender;
+
+    public Person(String lastName, String firstName, String middleName, Date birthDate, long phoneNumber, char gender) {
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.birthDate = birthDate;
+        this.phoneNumber = phoneNumber;
+        this.gender = gender;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public long getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public char getGender() {
+        return gender;
+    }
+
+    @Override
+    public String toString() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        return String.format("%s %s %s %s %d %c",
+                lastName, firstName, middleName,
+                dateFormat.format(birthDate), phoneNumber, gender);
+    }
+}
+
+public class PersonApp {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        try {
+            System.out.println("Введите данные (в произвольном порядке):");
+            String input = scanner.nextLine();
+
+            // Разделение введенных данных
+            String[] inputArray = input.split("\\s");
+
+            // Проверка количества данных
+            if (inputArray.length != 5) {
+                throw new IllegalArgumentException("Неверное количество данных");
+            }
+
+            // Извлечение данных
+            String lastName = inputArray[0];
+            String firstName = inputArray[1];
+            String middleName = inputArray[2];
+            String birthDateString = inputArray[3];
+            String phoneNumberString = inputArray[4];
+
+            // Парсинг даты
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+            Date birthDate;
+            try {
+                birthDate = dateFormat.parse(birthDateString);
+            } catch (ParseException e) {
+                throw new IllegalArgumentException("Неверный формат даты рождения");
+            }
+
+            // Парсинг номера телефона
+            long phoneNumber;
+            try {
+                phoneNumber = Long.parseLong(phoneNumberString);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Неверный формат номера телефона");
+            }
+
+            // Парсинг пола
+            char gender = inputArray[4].charAt(0);
+            if (gender != 'f' && gender != 'm') {
+                throw new IllegalArgumentException("Неверное значение пола");
+            }
+
+            // Создание объекта Person
+            Person person = new Person(lastName, firstName, middleName, birthDate, phoneNumber, gender);
+
+            // Запись в файл
+            try (FileWriter fileWriter = new FileWriter(lastName + ".txt", true)) {
+                fileWriter.write(person.toString() + "\n");
+            }
+
+            System.out.println("Данные успешно сохранены в файл.");
+        } catch (IllegalArgumentException | IOException e) {
+            System.err.println("Ошибка введенных данных или записи в файл: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            scanner.close();
+        }
+    }
+}
